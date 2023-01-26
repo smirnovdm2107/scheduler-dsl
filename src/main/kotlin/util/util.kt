@@ -1,21 +1,29 @@
 package util
 
 import model.*
+import model.WeekDay.*
+import kotlin.math.max
 import kotlin.math.min
-import kotlin.properties.Delegates
 
 fun расписание(operations: Scheduler.() -> Unit) : Scheduler = Scheduler().apply(operations)
 
 fun Scheduler.событие(name: String, operations: Event.() -> Unit) : Event {
     val event = Event(name)
     events.add(event)
-    Event(name).apply(operations)
+    event.apply(operations)
     return event
 }
 
-fun Event.время(operations: Time.() -> Unit) : Time = Time().apply(operations)
+fun Event.время(operations: Time.() -> Unit) : Time {
+    this.time.apply(operations)
+    return this.time
+}
 
-fun Event.описание(operations: Description.() -> Unit) : Description = Description().apply(operations)
+fun Event.описание(operations: Description.() -> Unit) : Description  {
+    val description = this.description
+    description.apply(operations)
+    return description
+}
 
 open class TimeDTO(val hours: Int = 0, val minutes: Int = 0, val seconds: Int = 0) {
     open operator fun plus(time: TimeDTO) : TimeDTO = TimeDTO(
@@ -29,6 +37,8 @@ open class TimeDTO(val hours: Int = 0, val minutes: Int = 0, val seconds: Int = 
         this.minutes + time.minutes,
         this.seconds + time.seconds
     )
+
+    override fun toString() : String = "$hours:$minutes:$seconds"
 
 }
 
@@ -88,23 +98,55 @@ class OpenRange<T>(val left: T,val right: T) where T : Comparable<T> {
                 "left border of range ($left) must be less than right border of range ($right)")
         }
     }
+
+    infix fun intersect(other: OpenRange<T>) : OpenRange<T>? {
+        return when {
+            this.right <= other.left || this.left >= other.right -> null
+            else -> OpenRange(maxOf(this.left, other.left), minOf(this.right, other.right))
+        }
+    }
+
 }
 infix fun TimestampDTO.until(time: TimestampDTO) : OpenRange<TimestampDTO> = OpenRange(this, time)
 
-fun Time.повторять(vararg days: Timestamp) = timePoints.addAll(days)
-fun Time.повторять(vararg pairs: Pair<WeekDay, TimestampDTO>) =
-    this.timePoints.addAll(pairs.map {Pair(it.first, OpenRange(it.second, it.second))})
+fun Time.повторять(vararg days: Timestamp) {
+    this.timePoints.addAll(days)
+}
 infix fun WeekDay.в(time: TimestampDTO) = Pair(this, time)
 infix fun WeekDay.в(hours: Int) = Pair(this, TimestampDTO(hours))
 infix fun WeekDay.в(timestampString: String) = Pair(this,
     TimestampDTO(timestampString.split(":").map{it.toInt()}.toTypedArray()))
 infix fun WeekDay.в(time: OpenRange<TimestampDTO>) = Pair(this, time)
 infix fun WeekDay.в(time: IntRange) = Pair(this, OpenRange(TimestampDTO(time.first), TimestampDTO(time.last)))
-
+infix fun List<WeekDay>.в(time: TimestampDTO) = this.map{ Pair(it, time)}
+infix fun List<WeekDay>.в(hours: Int) = this.map{Pair(it, TimestampDTO(hours))}
 
 infix fun Pair<WeekDay, TimestampDTO>.до(time: TimestampDTO) = Pair(this.first, this.second until time)
 infix fun Pair<WeekDay, TimestampDTO>.до(time: Int) = this.до(TimestampDTO(time))
-
+infix fun List<Pair<WeekDay, TimestampDTO>>.до(time: Int) =
+    this.map{Pair(it.first, OpenRange(it.second, TimestampDTO(time)))}
 fun Time.кроме(vararg days: Int) = apartFrom.addAll(days.toList())
 
+fun Event.место(name: String, operations: Location.() -> Unit) : Location = Location(name).apply(operations)
 
+fun Location.время_работы(range: IntRange) =
+    this.время_работы(OpenRange(TimestampDTO(range.first), TimestampDTO(range.last)))
+fun Location.время_работы(range: OpenRange<TimestampDTO>) {
+    properties.set("время работы", range)
+}
+fun Location.описание(operations: Description.() -> Unit) : Description {
+    return this.description.apply(operations)
+}
+fun Event.стоимость(value: Int) {
+    properties.set("стоимость", value)
+}
+
+val каждый_день = WeekDay.values().toList()
+val по_будням = каждый_день.filter { it != вс && it != сб}
+val по_выходным = каждый_день.filter {it == вс || it == сб}
+
+val бесплатно = 0
+
+operator fun Time.invoke(time: Timestamp) = timePoints.add(time)
+fun Time.повторять(times: List<Timestamp>) = this.повторять(*times.toTypedArray())
+fun Time.один_раз(vararg times: Timestamp) = timePoints.addAll(times)
