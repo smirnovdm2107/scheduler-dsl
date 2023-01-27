@@ -3,7 +3,9 @@ package org.example.util
 import org.example.model.WeekDay.*
 import org.example.model.*
 
-fun расписание(operations: Scheduler.() -> Unit) : Scheduler = Scheduler().apply(operations)
+fun расписание(operations: Scheduler.() -> Unit) : Scheduler {
+    return Scheduler().apply(operations)
+}
 
 fun Scheduler.событие(name: String, operations: Event.() -> Unit) : Event {
     val event = Event(name)
@@ -24,17 +26,26 @@ fun Event.описание(operations: Description.() -> Unit) : Description {
 }
 
 open class TimeDTO(val hours: Int = 0, val minutes: Int = 0, val seconds: Int = 0) {
-    open operator fun plus(time: TimeDTO) : TimeDTO = TimeDTO(
-        this.hours + time.hours,
-              this.minutes + time.minutes,
-                        this.seconds + time.seconds
+    open operator fun plus(time: TimeDTO) : TimeDTO = toPrettyFormat(
+            this.hours + time.hours,
+            this.minutes + time.minutes,
+            this.seconds + time.seconds
         )
 
-    open operator fun minus(time: TimeDTO) : TimeDTO = TimeDTO(
+
+    open operator fun minus(time: TimeDTO) : TimeDTO = toPrettyFormat(
         this.hours - time.hours,
         this.minutes - time.minutes,
         this.seconds - time.seconds
     )
+
+    private fun toPrettyFormat(hours: Int, minutes: Int, seconds: Int) : TimeDTO {
+        val resultSeconds = seconds % 60
+        val sumMinutes = minutes + seconds / 60
+        val resultMinutes = sumMinutes % 60
+        val resultHours = sumMinutes / 60 + hours
+        return TimeDTO(resultHours, resultMinutes, resultSeconds)
+    }
 
     override fun toString() : String = "$hours:$minutes:$seconds"
 

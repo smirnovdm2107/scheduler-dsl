@@ -1,5 +1,6 @@
 package org.example.model
 
+@SchedulerDsl
 class Description {
     private val description: StringBuilder = StringBuilder()
 

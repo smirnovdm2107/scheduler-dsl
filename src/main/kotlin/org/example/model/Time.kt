@@ -4,6 +4,7 @@ import org.example.util.OpenRange
 import org.example.util.Timestamp
 import org.example.util.TimestampDTO
 
+@SchedulerDsl
 class Time {
     val timePoints = arrayListOf<Pair<WeekDay, OpenRange<TimestampDTO>>>()
     val apartFrom = arrayListOf<Int>()
