@@ -31,9 +31,9 @@ open class TimeDTO(val hours: Int = 0, val minutes: Int = 0, val seconds: Int = 
         )
 
     open operator fun minus(time: TimeDTO) : TimeDTO = TimeDTO(
-        this.hours + time.hours,
-        this.minutes + time.minutes,
-        this.seconds + time.seconds
+        this.hours - time.hours,
+        this.minutes - time.minutes,
+        this.seconds - time.seconds
     )
 
     override fun toString() : String = "$hours:$minutes:$seconds"
@@ -144,7 +144,7 @@ val каждый_день = WeekDay.values().toList()
 val по_будням = каждый_день.filter { it != вс && it != сб}
 val по_выходным = каждый_день.filter {it == вс || it == сб}
 
-val бесплатно = 0
+const val бесплатно = 0
 
 operator fun Time.invoke(time: Timestamp) = timePoints.add(time)
 fun Time.повторять(times: List<Timestamp>) = this.повторять(*times.toTypedArray())
