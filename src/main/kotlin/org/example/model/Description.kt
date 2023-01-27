@@ -1,4 +1,4 @@
-package model
+package org.example.model
 
 class Description {
     val description: StringBuilder = StringBuilder()

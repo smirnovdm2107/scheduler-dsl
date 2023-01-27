@@ -1,9 +1,7 @@
-package util
+package org.example.util
 
-import model.*
-import model.WeekDay.*
-import kotlin.math.max
-import kotlin.math.min
+import org.example.model.WeekDay.*
+import org.example.model.*
 
 fun расписание(operations: Scheduler.() -> Unit) : Scheduler = Scheduler().apply(operations)
 
@@ -19,7 +17,7 @@ fun Event.время(operations: Time.() -> Unit) : Time {
     return this.time
 }
 
-fun Event.описание(operations: Description.() -> Unit) : Description  {
+fun Event.описание(operations: Description.() -> Unit) : Description {
     val description = this.description
     description.apply(operations)
     return description
@@ -32,7 +30,7 @@ open class TimeDTO(val hours: Int = 0, val minutes: Int = 0, val seconds: Int = 
                         this.seconds + time.seconds
         )
 
-    open operator fun minus(time: TimeDTO) :TimeDTO = TimeDTO(
+    open operator fun minus(time: TimeDTO) : TimeDTO = TimeDTO(
         this.hours + time.hours,
         this.minutes + time.minutes,
         this.seconds + time.seconds
@@ -115,7 +113,8 @@ fun Time.повторять(vararg days: Timestamp) {
 infix fun WeekDay.в(time: TimestampDTO) = Pair(this, time)
 infix fun WeekDay.в(hours: Int) = Pair(this, TimestampDTO(hours))
 infix fun WeekDay.в(timestampString: String) = Pair(this,
-    TimestampDTO(timestampString.split(":").map{it.toInt()}.toTypedArray()))
+    TimestampDTO(timestampString.split(":").map{it.toInt()}.toTypedArray())
+)
 infix fun WeekDay.в(time: OpenRange<TimestampDTO>) = Pair(this, time)
 infix fun WeekDay.в(time: IntRange) = Pair(this, OpenRange(TimestampDTO(time.first), TimestampDTO(time.last)))
 infix fun List<WeekDay>.в(time: TimestampDTO) = this.map{ Pair(it, time)}

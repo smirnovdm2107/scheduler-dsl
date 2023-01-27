@@ -1,8 +1,8 @@
-package util
+package org.example.util
 
-import model.Event
-import model.Scheduler
-import model.WeekDay
+import org.example.model.Event
+import org.example.model.Scheduler
+import org.example.model.WeekDay
 import java.time.LocalDate
 
 

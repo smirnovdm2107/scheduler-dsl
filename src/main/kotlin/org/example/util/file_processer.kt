@@ -1,6 +1,5 @@
-package util
+package org.example.util
 
-import model.Scheduler
 import java.io.FileWriter
 import java.time.Instant
 

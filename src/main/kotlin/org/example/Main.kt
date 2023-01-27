@@ -1,5 +1,7 @@
-import model.WeekDay.*
-import util.*
+package org.example
+
+import org.example.model.WeekDay.*
+import org.example.util.*
 
 
 fun main(args: Array<String>) {
